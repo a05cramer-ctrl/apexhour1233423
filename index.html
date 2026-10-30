@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>APEX</title>
+<meta name="description" content="Every hour, the wallet with the best profit trading $APEX takes all the creator fees from that hour.">
+<meta property="og:title" content="APEX">
+<meta property="og:description" content="Out-trade everyone. Take the hour.">
+<meta property="og:image" content="og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#070f18">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+/* Layout: one full-bleed pixel mountain; title top-left, the hour clock top-right, three stat plaques across the mountain's foot; board + kings below on the same night */
+:root{--bg:#070f18;--bg2:#0a1622;--card:#0c1b28;--line:#1a3446;--ice:#8fe3ff;--hi:#e2fbff;--mint:#7ff2c8;--gold:#e6f7a2;--coral:#ff8f9f;--ink:#e6f6fb;--dim:#6f90a3;--px:'Silkscreen',ui-monospace,monospace;--mono:'Space Mono',ui-monospace,monospace;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{overflow-x:clip;background:var(--bg);color:var(--ink);font:14px/1.5 var(--mono);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.up{color:var(--mint)}.dn{color:var(--coral)}
+.top{position:fixed;inset:0 0 auto;z-index:30;display:flex;align-items:center;gap:24px;padding:12px max(22px,env(safe-area-inset-right,0px)) 12px max(22px,env(safe-area-inset-left,0px));background:linear-gradient(#070f18f2,#070f1800)}
+.brand{display:flex;align-items:center;gap:10px;font:700 20px var(--px);letter-spacing:.08em}
+.brand img{width:34px;height:34px;image-rendering:pixelated;box-shadow:0 0 0 2px var(--line)}
+.top nav{display:flex;gap:18px;font:400 12px var(--px);color:var(--dim);letter-spacing:.06em}
+.top nav a:hover{color:var(--hi)}
+.acts{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{min-height:38px;padding:0 14px;font:700 12px var(--px);letter-spacing:.06em;background:var(--gold);color:#0b1405;box-shadow:0 0 0 2px #050b10,3px 3px 0 2px #050b10;display:inline-flex;align-items:center;gap:8px;transition:transform .08s}
+.btn:hover{transform:translate(-1px,-1px)}.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 2px #050b10}
+.btn.ghost{background:transparent;color:var(--ice);box-shadow:0 0 0 2px var(--line)}
+.chip{min-height:38px;padding:0 12px;font:400 12px var(--mono);color:var(--ice);box-shadow:0 0 0 2px var(--line);display:inline-flex;align-items:center;gap:8px}
+.chip .k{color:var(--dim)}
+.hero{position:relative;height:max(100svh,700px);max-height:1100px;overflow:hidden;background:var(--bg)}
+#sky{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;display:block}
+.ov{position:absolute;z-index:2}
+.title{left:max(28px,env(safe-area-inset-left,0px));top:96px;max-width:min(520px,44vw)}
+.kick{font:400 12px var(--px);letter-spacing:.14em;color:var(--gold)}
+h1{font:700 clamp(36px,4.4vw,64px)/1 var(--px);margin-top:12px;letter-spacing:-.01em;text-shadow:0 3px 0 #050b10}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{margin-top:14px;color:#a9c6d4;font-size:14px;max-width:420px}
+.lede b{color:var(--ink)}
+.clockbox{right:max(28px,env(safe-area-inset-right,0px));top:96px;text-align:right}
+.clockbox .k{font:400 12px var(--px);letter-spacing:.14em;color:var(--dim)}
+#clock{font:700 clamp(48px,6vw,84px)/1 var(--px);color:var(--hi);text-shadow:0 0 30px #8fe3ff55,0 3px 0 #050b10;font-variant-numeric:tabular-nums}
+#hourRange{font-size:12px;color:var(--dim)}
+.cbar{margin:10px 0 0 auto;width:220px;height:8px;box-shadow:inset 0 0 0 2px var(--line);position:relative;background:#06101a}
+.cbar i{position:absolute;inset:2px auto 2px 2px;max-width:calc(100% - 4px);background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 8px)}
+.soundb{margin-top:12px;font:400 11px var(--px);color:var(--dim);padding:6px 10px;box-shadow:0 0 0 2px var(--line);min-height:32px}
+.soundb[aria-pressed=true]{color:var(--gold)}
+.plaques{left:50%;translate:-50% 0;bottom:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:min(1000px,calc(100% - 48px))}
+.plq{display:flex;flex-direction:column;gap:4px;padding:14px 16px;background:#08131ee8;box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d;min-width:0}
+.plq .k{font:400 11px var(--px);letter-spacing:.12em;color:var(--dim)}
+.plq .v{font:700 26px/1.1 var(--px);color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plq .v i{font:400 12px var(--mono);font-style:normal;color:var(--dim)}
+.plq .v.idle{color:var(--dim);font-size:20px}
+.plq .s{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#king{box-shadow:0 0 0 2px #e6f7a255,4px 4px 0 2px #03080d}
+#king .v a{color:var(--gold)}
+#tip{position:absolute;left:0;top:0;z-index:4;pointer-events:none;translate:-50% -100%;display:flex;flex-direction:column;align-items:center;padding:5px 9px;background:#070f18f0;box-shadow:0 0 0 2px var(--line);font-size:11.5px;white-space:nowrap}
+#tip b{font:700 12px var(--px)}
+.band{background:var(--bg2);border-top:2px solid var(--line)}
+section.blk{max-width:1180px;margin:0 auto;padding:80px max(28px,env(safe-area-inset-right,0px)) 80px max(28px,env(safe-area-inset-left,0px))}
+.sh{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.sh h2{font:700 clamp(30px,3.4vw,44px)/1 var(--px);margin-top:10px}
+.sh p,.sh .cnt{color:var(--dim);font-size:13px;max-width:440px}
+.mebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.mebar form{display:flex;gap:6px;flex:1;min-width:260px;max-width:520px}
+.mebar input{flex:1;min-width:0;height:44px;padding:0 12px;background:#06101a;border:0;box-shadow:inset 0 0 0 2px var(--line);outline:0;font-size:12.5px}
+.mebar input:focus{box-shadow:inset 0 0 0 2px var(--ice)}
+#meOut{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+#meOut b{font:700 16px var(--px);color:var(--gold)}
+.board{display:flex;flex-direction:column;box-shadow:0 0 0 2px var(--line)}
+.lrow{display:grid;grid-template-columns:56px 1.2fr 1.3fr .9fr .7fr 1fr;gap:12px;align-items:center;padding:12px 16px;border-bottom:2px solid var(--line);background:var(--card);font-size:13px}
+.lrow:last-child{border-bottom:0}
+.lrow:hover{background:#10243400}
+.lrow .rk{font:700 14px var(--px);color:var(--dim)}
+.lrow .w{font-weight:700}
+.lrow .w em{font:400 10px var(--px);font-style:normal;color:#050b10;background:var(--ice);padding:1px 5px;margin-left:6px}
+.lrow .p{font:700 15px var(--px)}.lrow .p i{font:400 11px var(--mono);font-style:normal;color:var(--dim)}
+.lrow .vol,.lrow .tr,.lrow .q{color:var(--dim);font-size:12px}
+.lrow.king{background:linear-gradient(90deg,#e6f7a21c,transparent 60%),var(--card)}
+.lrow.king .w{color:var(--gold)}
+.lrow.mine{box-shadow:inset 3px 0 0 var(--ice)}
+.crown{width:28px;height:20px;image-rendering:pixelated;vertical-align:middle}
+.kings{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.kcard{display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--card);box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d;transition:transform .1s}
+.kcard:hover{transform:translate(-2px,-2px)}
+.kcard .kh{font:400 11px var(--px);color:var(--dim);letter-spacing:.08em}
+.kcard b{font:700 18px var(--px);color:var(--gold)}
+.kcard .kp{font-size:12px;color:var(--ink)}
+.empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:34px;text-align:center;color:var(--dim);font-size:13px;box-shadow:inset 0 0 0 2px var(--line);background:var(--card)}
+.empty svg{image-rendering:pixelated}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.step{padding:20px;background:var(--card);box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d;display:flex;flex-direction:column;gap:10px}
+.step .n{font:700 12px var(--px);color:var(--gold);letter-spacing:.12em}
+.step h3{font:700 18px var(--px)}
+.step p{color:var(--dim);font-size:12.5px}
+.formula{margin-top:14px;padding:18px 20px;background:#06101a;box-shadow:inset 0 0 0 2px var(--line);font-size:13px;color:#b9d3df;overflow-x:auto}
+.formula code{font:700 13px var(--mono);color:var(--hi);white-space:nowrap}
+.calc{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}
+.calc>div{padding:22px;background:var(--card);box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d}
+.calc h3{font:700 17px var(--px);margin-bottom:6px}
+.sl{display:grid;grid-template-columns:150px 1fr 64px;gap:12px;align-items:center;margin-top:14px;font-size:12px;color:var(--dim)}
+.sl output{text-align:right;font:700 14px var(--px);color:var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:#06101a;box-shadow:inset 0 0 0 2px var(--line);outline:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--gold);box-shadow:0 0 0 2px #050b10;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;background:var(--gold);border:0;border-radius:0}
+.calc .big{font:700 40px/1.1 var(--px)}
+.calc p{color:var(--dim);font-size:12.5px;margin-top:10px}
+.rules{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 36px}
+.rules li{display:grid;grid-template-columns:26px 1fr;padding:14px 0;border-bottom:2px solid var(--line);font-size:13.5px;color:#c4dbe5}
+.rules li::before{content:'▲';color:var(--gold);font:400 11px var(--px);padding-top:3px}
+.rules b{color:var(--ink)}
+footer{max-width:1180px;margin:0 auto;padding:36px max(28px,env(safe-area-inset-right,0px)) 52px max(28px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;border-top:2px solid var(--line);color:var(--dim);font-size:12px}
+footer .lnk{display:flex;gap:16px;align-items:center;font:400 12px var(--px)}
+footer .lnk a:hover{color:var(--hi)}
+.disc{width:100%;font-size:11px;color:#4f6c7c}
+.sk{display:inline-block;height:1em;width:90px;background:linear-gradient(90deg,#10283a,#1b3c50,#10283a);background-size:200% 100%;animation:sk 1.2s steps(6) infinite;vertical-align:middle}
+.w60{width:60%}
+.sk-row .sk{width:100%;height:14px}.sk-card{min-height:110px;gap:10px}
+@keyframes sk{to{background-position:-200% 0}}
+#toast{position:fixed;z-index:50;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));translate:-50% 16px;opacity:0;transition:.25s steps(4);padding:12px 16px;background:#0e2230;box-shadow:0 0 0 2px var(--gold),4px 4px 0 2px #03080d;font-size:13px;max-width:calc(100vw - 32px)}
+#toast.on{opacity:1;translate:-50% 0}
+@media (max-width:1000px){.top nav{display:none}}
+@media (max-width:760px){
+ .top{padding:10px 16px;gap:10px}.top .chip,.top [data-link=x]{display:none!important}
+ .hero{height:auto;max-height:none;min-height:0;display:flex;flex-direction:column;padding:78px 16px 16px;gap:14px;background:linear-gradient(#04090f,#0b1f2e)}
+ .hero #sky{display:none}
+ .mspace #sky{display:block;position:absolute;inset:0}
+ .ov{position:relative;inset:auto;translate:none;left:auto;right:auto;top:auto;bottom:auto;max-width:none}
+ .clockbox{text-align:left;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+ .clockbox .cbar{margin:0;width:100%}
+ #clock{font-size:44px}
+ .mspace{height:92vw;min-height:280px;position:relative;margin:0 -16px;order:3}
+ .title{order:1}.clockbox{order:2}.plaques{order:4}
+ .plaques{width:100%;grid-template-columns:1fr;gap:10px}
+ h1{font-size:36px}
+ section.blk{padding:60px 16px}
+ .lrow{grid-template-columns:44px 1fr auto;gap:4px 10px}.lrow .vol,.lrow .tr{display:none}.lrow .q{grid-column:2/-1;font-size:11px}
+ .steps,.calc,.rules{grid-template-columns:1fr}
+ .sl{grid-template-columns:100px 1fr 56px}
+ footer{padding:32px 16px 48px}
+ .btn,.soundb{min-height:44px}
+}
+@media (min-width:761px){.mspace{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#top"><img src="apex-mark.png" alt=""><span>APEX</span></a>
+  <nav><a href="#board">Leaderboard</a><a href="#kings-s">Kings</a><a href="#how">How it works</a><a href="#rules">Rules</a></nav>
+  <div class="acts">
+    <button class="chip" data-ca hidden><span class="k">CA</span><span class="v"></span></button>
+    <a class="btn ghost" data-link="x" target="_blank" rel="noopener" hidden>X</a>
+    <a class="btn" data-link="buy" target="_blank" rel="noopener" hidden>Trade $APEX</a>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <canvas id="sky" aria-label="This hour's traders as climbers on the mountain"></canvas>
+  <div class="ov title">
+    <div class="kick">Every hour · one winner</div>
+    <h1>Out-trade everyone.<br><em>Take the hour.</em></h1>
+    <p class="lede">Every wallet that trades $APEX this hour climbs the mountain. At <b>:00</b>, whoever made the most profit takes <b>all the creator fees</b> from that hour.</p>
+  </div>
+  <div class="ov clockbox">
+    <div class="k">CROWNED IN</div>
+    <div id="clock">--:--</div>
+    <div id="hourRange"></div>
+    <div class="cbar"><i id="clockBar"></i></div>
+    <button class="soundb" id="soundBtn" aria-pressed="false">SOUND OFF</button>
+  </div>
+  <div class="mspace"></div>
+  <div class="ov plaques">
+    <div class="plq" id="pot"></div>
+    <div class="plq" id="king"></div>
+    <div class="plq" id="field"></div>
+  </div>
+  <div id="tip" hidden></div>
+</section>
+
+<div class="band">
+<section class="blk" id="board">
+  <div class="sh"><div><div class="kick">Live, from chain</div><h2>This hour's board</h2></div><span class="cnt" id="lbHead"></span></div>
+  <div class="mebar"><form id="meForm"><input id="meIn" placeholder="paste your wallet to find your climber" autocomplete="off" spellcheck="false" aria-label="Your wallet"><button class="btn ghost" type="submit">FIND ME</button></form><button class="btn ghost" id="connectBtn" type="button">CONNECT</button><div id="meOut"></div></div>
+  <div class="board" id="lb"></div>
+</section>
+
+<section class="blk" id="kings-s">
+  <div class="sh"><div><div class="kick">Paid on chain</div><h2>Kings</h2></div><span class="cnt" id="kingsHead"></span></div>
+  <div class="kings" id="kings"></div>
+</section>
+
+<section class="blk" id="how">
+  <div class="sh"><div><div class="kick">One hour</div><h2>How it works</h2></div><p>Trading $APEX pays creator fees to the launch wallet through the hour. At the top of the hour that pot goes to the best trader of the hour, in <span data-quote></span>.</p></div>
+  <div class="steps">
+    <div class="step"><span class="n">:00</span><h3>The climb starts</h3><p>A fresh hour, an empty mountain. Buy or sell $APEX and your wallet appears as a climber.</p></div>
+    <div class="step"><span class="n">:00–:59</span><h3>Profit is height</h3><p>The more you're up on what you traded this hour, the higher you stand. The crown sits on the leader.</p></div>
+    <div class="step"><span class="n">:00</span><h3>Crowned</h3><p>The top wallet gets every creator fee that came in during the hour, with a receipt memo on Solscan.</p></div>
+  </div>
+  <div class="formula">Score for the hour = <code>sold − bought + (still holding from this hour × last price)</code> in <span data-quote></span>. Holding from earlier hours doesn't count. Only trades inside the hour do.</div>
+  <div class="calc">
+    <div>
+      <h3>Run your hour</h3>
+      <div class="sl"><span>You buy (<span data-quote></span>)</span><input type="range" id="cBuy" min="10" max="2000" step="10" value="200"><output id="cBuyV"></output></div>
+      <div class="sl"><span>Price by :59</span><input type="range" id="cChg" min="-80" max="300" step="1" value="35"><output id="cChgV"></output></div>
+    </div>
+    <div><span class="kick">Your score</span><div class="big" id="cOut"></div><p id="cNote"></p></div>
+  </div>
+</section>
+
+<section class="blk" id="rules">
+  <div class="sh"><div><div class="kick">Short version</div><h2>Rules</h2></div></div>
+  <ul class="rules">
+    <li><span>Hours are clock hours. Scores reset at <b>:00</b>.</span></li>
+    <li><span>Only trades inside the hour count. Any route counts: StonkFun curve, the pool after migration, aggregators.</span></li>
+    <li><span>To win you must be in profit and have traded at least <b data-minv></b> that hour.</span></li>
+    <li><span>Prize = every creator fee the launch wallet received that hour. Ties go to whoever got there first.</span></li>
+    <li><span>No winner? The pot rolls into the next hour.</span></li>
+    <li><span>The launch wallet itself can't win. Payouts carry the memo <code style="color:var(--ice)">APEX-CROWN</code>. Launch wallet: <span data-creator></span></span></li>
+  </ul>
+</section>
+</div>
+
+<footer>
+  <a class="brand" href="#top"><img src="apex-mark.png" alt=""><span>APEX</span></a>
+  <div class="lnk"><button class="chip" data-ca hidden><span class="k">CA</span><span class="v"></span></button><a data-link="x" target="_blank" rel="noopener" hidden>X</a><a data-link="buy" target="_blank" rel="noopener" hidden>Trade</a><a data-link="chart" target="_blank" rel="noopener" hidden>Chart</a></div>
+  <p class="disc">Trading memecoins is risky and you can lose what you put in. The payout is run by the launch wallet's engine and depends on creator fees actually arriving. Not financial advice.</p>
+</footer>
+<div id="toast" hidden></div>
+<script>(()=>{var X=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(t=>(t+.5)/16),y={ice:"#8fe3ff",iceHi:"#e2fbff",iceLo:"#3d8fb0",iceDk:"#1e4f68",snow:"#f2fdff",mint:"#7ff2c8",gold:"#e6f7a2",coral:"#ff8f9f",dim:"#2a5468"},_=t=>{let n=2166136261;for(let s=0;s<t.length;s++)n^=t.charCodeAt(s),n=Math.imul(n,16777619);return(n>>>0)/4294967295};function dt(t){let n=t.getContext("2d"),s=1,o=1,d=3,v=null,k=null,x=[],$={x:0,y:0},I=0,nt=[],T={rows:[],me:null,hover:null,crownPulse:-9,celebrate:-9,live:!1},q=[];function Et(){let a=Math.round(s*.5),c=Math.round(o*.2);I=Math.round(o*.94),x=new Array(s);for(let e=0;e<s;e++){let h=Math.abs(e-a)/(s*.42),r=c+Math.pow(h,.82)*(I-c)*.95,u=Math.exp(-Math.pow((e-s*.2)/(s*.09),2))*o*.16+Math.exp(-Math.pow((e-s*.8)/(s*.08),2))*o*.12;r=Math.min(r,I-(I-c)*.25-u+o*.05+(1-Math.min(1,Math.abs(e-a)/(s*.12)))*0),r+=(Math.sin(e*.37)*1.2+Math.sin(e*.11+2)*2.2)*Math.min(1,h*1.4),x[e]=Math.max(c,Math.min(I,Math.round(r)))}let m=a;for(let e=0;e<s;e++)x[e]<x[m]&&(m=e);$={x:m,y:x[m]};let w=n.createImageData(s,o),l=w.data;for(let e=0;e<s;e++){let h=e<$.x,r=e>0&&e<s-1?x[e+1]-x[e-1]:0;for(let p=x[e];p<o;p++){let f=(p*s+e)*4,L=(p-x[e])/(o-x[e]+1),O=X[(p&3)*4+(e&3)],D=p-$.y<(I-$.y)*.32&&p-x[e]<10+6*Math.sin(e*.2),R;if(D)R=h?O<.8?[242,253,255]:[143,227,255]:O<.35?[226,251,255]:[143,227,255];else{let Lt=h?.75-L*.6:.35-L*.5,Ht=_((e>>2)+":"+(p>>1)),Ot=Ht<.12&&O<.6,ht=Lt+(Ot?-.2:0);R=ht>O*.9?[61,143,176]:ht>O*.45-.2?[30,79,104]:[16,42,58]}l[f]=R[0],l[f+1]=R[1],l[f+2]=R[2],l[f+3]=255}let u=(x[e]*s+e)*4;l[u]=226,l[u+1]=251,l[u+2]=255,l[u+3]=255}k=document.createElement("canvas"),k.width=s,k.height=o,k.getContext("2d").putImageData(w,0,0)}function st(){let a=t.getBoundingClientRect();d=a.width>=900?3:2,s=Math.max(60,Math.ceil(a.width/d)),o=Math.max(60,Math.ceil(a.height/d)),t.width=s,t.height=o;let c=n.createImageData(s,o),m=c.data;for(let w=0;w<o;w++)for(let l=0;l<s;l++){let e=w/o,h=X[(w&3)*4+(l&3)],r=e*7,u=Math.floor(r),p=(r-u>h?u+1:u)/7,f=(w*s+l)*4;m[f]=4+p*8,m[f+1]=9+p*22,m[f+2]=16+p*30,m[f+3]=255}v=c,nt=Array.from({length:Math.round(s*o/700)},()=>({x:Math.random()*s,y:Math.random()*o,v:.08+Math.random()*.2,s:Math.random()})),Et(),at(!0)}function G(a){return a=Math.max(0,Math.min(s-1,Math.round(a))),x[a]}function at(a){let c=T.rows,m=c.length,w=new Map(q.map(l=>[l.wallet,l]));q=c.map((l,e)=>{let h=_(l.wallet)<.5?-1:1,r;e===0&&l.pnl>0?r=0:l.pnl>0?r=.08+.62*(e/Math.max(1,m)):r=.82+.15*_(l.wallet+"f");let u=r===0?$.x:$.x+h*(r*s*.42+(_(l.wallet+"j")-.5)*6),p=G(u)-1,f=w.get(l.wallet)||{wallet:l.wallet,x:a?u:$.x+h*s*.45,y:I,phase:_(l.wallet)*6};return Object.assign(f,{tx:u,ty:p,rank:e,pnl:l.pnl,col:e===0&&l.pnl>0?y.gold:l.pnl>0?y.mint:y.coral})})}function C(a,c,m,w=1){n.globalAlpha=w,n.fillStyle=m,n.fillRect(Math.round(a),Math.round(c),1,1)}function ot(a,c,m,w=1){let l=w,e=Math.round(a),h=Math.round(c),r=["1.1.1","11111","11111"],u=Math.max(0,1-(m-T.crownPulse)*1.5);for(let p=-5;p<=3;p++)for(let f=-6;f<=6;f++){let L=Math.hypot(f,p*1.4)/6;L<1&&(1-L)*(.55+u)>X[(h+p&3)*4+(e+f&3)]&&C(e+f,h+p-2,y.gold,.25)}r.forEach((p,f)=>[...p].forEach((L,O)=>{if(L==="1")for(let D=0;D<l;D++)for(let R=0;R<l;R++)C(e-2*l+O*l+D,h-3*l+f*l+R,f===0?y.snow:y.gold)}))}function Tt(a){let c=s*.2,m=c*.22,w=$.x,l=$.y+o*.13,e={back:[],front:[]},h=Math.round(c*8);for(let r=0;r<h;r++){if((r+Math.floor(a*10))%5===0)continue;let u=r/h*Math.PI*2,p=w+Math.cos(u)*c,f=l+Math.sin(u)*m-Math.cos(u)*c*.12;(Math.sin(u)<0?e.back:e.front).push([p,f])}return e}function At(a,c){let m=Math.round(Math.sin(c*4+a.phase)*.6),w=Math.round(a.x),l=Math.round(a.y)+m,e=T.hover===a,h=T.me===a.wallet,r=(p,f,L,O)=>{n.globalAlpha=O??1,n.fillStyle=L,n.fillRect(w+p*2-1,l-1+f*2,2,2)};if(e||h)for(let p=-3;p<=3;p++)r(p,1,y.iceHi,.45);r(0,-4,a.col),r(0,-3,a.col),r(-1,-2,a.col,.85),r(1,-2,a.col,.85),r(0,-2,a.col);let u=Math.sin(c*6+a.phase)>0;r(u?-1:0,-1,a.col),r(u?0:1,-1,a.col),h&&(r(0,-7,y.iceHi),r(0,-6,y.iceHi,.6))}let rt=0,lt=!0,it=0;function ct(a){if(rt=requestAnimationFrame(ct),!lt||a-it<33)return;it=a;let c=a/1e3;n.globalAlpha=1,n.putImageData(v,0,0);for(let e=0;e<3;e++){let h=e===1?y.mint:y.ice;for(let r=0;r<s;r+=1){let u=o*(.12+e*.07)+Math.sin(r*.03+c*.4+e*2)*o*.04+Math.sin(r*.011-c*.2)*o*.03;for(let p=0;p<10;p++){let f=Math.round(u+p);(1-p/10)*.35>X[(f&3)*4+(r&3)]*1.6&&C(r,f,h,.35)}}}for(let e=0;e<s*.6;e++){let h=e*97%s,r=e*53%Math.round(o*.6);Math.sin(c*1.5+e)>.7?C(h,r,y.iceHi,.9):e%3===0&&C(h,r,y.ice,.45)}let m=Tt(c);for(let[e,h]of m.back)C(e,h,y.ice,.45);n.globalAlpha=1,n.drawImage(k,0,0);for(let[e,h]of m.front)C(e,h,y.iceHi,.9),C(e,h+1,y.ice,.35);for(let e of q)e.x+=(e.tx-e.x)*.03,e.y=G(e.x)-1+(e.ty-(G(e.tx)-1));for(let e of q.slice().reverse())At(e,c);let w=q[0]&&q[0].pnl>0?q[0]:null;w?ot(w.x,w.y-11,c,2):ot($.x,$.y-5+Math.sin(c*2)*1.5,c,2);let l=c-T.celebrate;if(l<3)for(let e=0;e<80;e++){let h=e*2.39996,r=l*(20+e%7*6);C($.x+Math.cos(h)*r,$.y-6+Math.sin(h)*r*.7+l*l*6,e%3?y.gold:y.mint,Math.max(0,1-l/3))}for(let e of nt)e.y+=e.v,e.x+=Math.sin(c+e.s*6)*.08,e.y>o&&(e.y=-2,e.x=Math.random()*s),C(e.x,e.y,y.snow,.35+e.s*.5);n.globalAlpha=1}st(),rt=requestAnimationFrame(ct);function Ct(a,c){let m=t.getBoundingClientRect(),w=(a-m.left)/d,l=(c-m.top)/d,e=null,h=8;for(let r of q){let u=Math.hypot(r.x-w,r.y-5-l);u<h&&(h=u,e=r)}return e}return{resize:st,state:T,setRows(a){T.rows=a,at(!1)},setMe(a){T.me=a},hover(a,c){return T.hover=Ct(a,c),T.hover},toScreen(a){let c=t.getBoundingClientRect();return{x:c.left+a.x*d,y:c.top+a.y*d}},summit(){let a=t.getBoundingClientRect();return{x:a.left+$.x*d,y:a.top+$.y*d}},crownPulse(){T.crownPulse=performance.now()/1e3},celebrate(){T.celebrate=performance.now()/1e3},setRunning(a){lt=a}}}var M=window.APEX_CFG||{},B=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/,Z=B.test(M.CA||"")&&B.test(M.CREATOR||"")&&B.test(M.QUOTE||""),b=M.QUOTE_SYMBOL||"STONK",j=M.MIN_VOLUME||0,W="So11111111111111111111111111111111111111112",i=t=>document.querySelector(t);var S=t=>t?t.slice(0,4)+"\u2026"+t.slice(-4):"",Q=t=>String(t).padStart(2,"0"),F=t=>{let n=new Date(t*1e3);return Q(n.getHours())+":"+Q(n.getMinutes())},Mt=()=>Date.now()/1e3,J=()=>Math.floor(Mt()/3600),P=null,H=t=>t==null||!isFinite(t)?"\u2014":Math.abs(t)>=1e6?(t/1e6).toFixed(2)+"M":Math.abs(t)>=1e4?(t/1e3).toFixed(1)+"k":Math.abs(t)>=100?t.toFixed(0):Math.abs(t)>=1?t.toFixed(2):t.toFixed(4),pt=t=>t==null||P==null?"":"\u2248 $"+(Math.abs(t*P)>=1e3?Math.round(t*P).toLocaleString("en-US"):(t*P).toFixed(2)),K=t=>(t>0?"+":"")+H(t);(function(){let t=M.CA||"",n=M.BUY||(t?`https://stonkfun.xyz/token/${t}`:""),s=M.CHART||(t?`https://gmgn.ai/sol/token/${t}`:""),o=(d,v)=>document.querySelectorAll(`[data-link=${d}]`).forEach(k=>{v?(k.href=v,k.hidden=!1):k.hidden=!0});o("x",M.X),o("buy",n),o("chart",s),document.querySelectorAll("[data-ca]").forEach(d=>{if(!t){d.hidden=!0;return}d.hidden=!1,d.querySelector(".v").textContent=S(t),d.onclick=()=>Rt(t,"$APEX address copied")}),document.querySelectorAll("[data-quote]").forEach(d=>d.textContent=b),document.querySelectorAll("[data-minv]").forEach(d=>d.textContent=M.MIN_VOLUME?H(j)+" "+b:"0.05 SOL worth of "+b),document.querySelectorAll("[data-creator]").forEach(d=>{d.innerHTML=B.test(M.CREATOR||"")?`<a href="https://solscan.io/account/${M.CREATOR}" target="_blank" rel="noopener">${S(M.CREATOR)}</a>`:"set in config.js"})})();function Rt(t,n){try{navigator.clipboard.writeText(t).then(()=>z(n),()=>z(t))}catch{z(t)}}var ut;function z(t){let n=i("#toast");n.textContent=t,n.hidden=!1,requestAnimationFrame(()=>n.classList.add("on")),clearTimeout(ut),ut=setTimeout(()=>{n.classList.remove("on"),setTimeout(()=>n.hidden=!0,250)},3200)}var U=null,V=!1;function gt(){if(!V)return;U=U||new(window.AudioContext||window.webkitAudioContext);let t=U.currentTime;for(let n of[523,659,784,1047,784,1047]){let s=U.createOscillator(),o=U.createGain();s.type="square",s.frequency.value=n,o.gain.setValueAtTime(.05,t),o.gain.exponentialRampToValueAtTime(1e-4,t+.14),s.connect(o).connect(U.destination),s.start(t),s.stop(t+.15),t+=.12}}i("#soundBtn").addEventListener("click",()=>{V=!V,i("#soundBtn").setAttribute("aria-pressed",V),i("#soundBtn").textContent=V?"SOUND ON":"SOUND OFF",V&&gt()});var yt=matchMedia("(max-width: 760px)");function vt(){let t=i("#sky"),n=yt.matches?i(".mspace"):i(".hero");t.parentElement!==n&&n.prepend(t)}vt();var A=dt(i("#sky"));yt.addEventListener("change",()=>{vt(),A.resize()});new ResizeObserver(()=>A.resize()).observe(i("#sky"));new IntersectionObserver(([t])=>A.setRunning(t.isIntersecting)).observe(i(".hero"));i("#sky").addEventListener("pointermove",t=>{let n=A.hover(t.clientX,t.clientY),s=i("#tip");if(!n){s.hidden=!0,i("#sky").style.cursor="";return}let o=A.toScreen(n),d=i(".hero").getBoundingClientRect();s.hidden=!1,i("#sky").style.cursor="pointer",s.style.transform=`translate(${o.x-d.left}px, ${o.y-d.top-18}px)`,s.innerHTML=`<b>#${n.rank+1} ${S(n.wallet)}</b><span class="${n.pnl>=0?"up":"dn"}">${K(n.pnl)} ${b}</span>`});i("#sky").addEventListener("pointerleave",()=>{i("#tip").hidden=!0});i("#sky").addEventListener("click",t=>{let n=A.hover(t.clientX,t.clientY);n&&window.open(`https://solscan.io/account/${n.wallet}`,"_blank","noopener")});var ft=J();function $t(){let t=Mt(),n=Math.floor(t/3600),s=(n+1)*3600-t;n!==ft&&(ft=n,A.celebrate(),gt(),g=null,N(),tt(),setTimeout(et,15e4)),i("#clock").textContent=Q(Math.floor(s/60))+":"+Q(Math.floor(s%60)),i("#hourRange").textContent=`${F(n*3600)} \u2192 ${F(n*3600+3600)} your time`,i("#clockBar").style.width=((t-n*3600)/36).toFixed(2)+"%"}setInterval($t,500);$t();var g=null,mt=!1,E=null;try{E=localStorage.getItem("apex-me")}catch{}async function tt(){if(!Z){N();return}try{let t=await fetch(`/api/board?mint=${M.CA}&quote=${M.QUOTE}&creator=${M.CREATOR}&h=${J()}`);if(!t.ok)throw 0;let n=await t.json();if(n.hour!==J())return;let s=g?.rows?.[0]?.wallet;g=n,mt=!1,g.rows[0]&&g.rows[0].pnl>0&&g.rows[0].wallet!==s&&s&&(A.crownPulse(),z(`New king: ${S(g.rows[0].wallet)}`))}catch{mt=!0}N()}async function xt(){if(B.test(M.QUOTE||""))try{let t=await(await fetch(`https://lite-api.jup.ag/price/v3?ids=${M.QUOTE},${W}`)).json();P=t?.[M.QUOTE]?.usdPrice??null;let n=t?.[W]?.usdPrice;!M.MIN_VOLUME&&P&&n&&(j=M.QUOTE===W?.05:.05*n/P),document.querySelectorAll("[data-minv]").forEach(s=>s.textContent=H(j)+" "+b+(M.MIN_VOLUME?"":" (0.05 SOL)")),N()}catch{}}var wt=t=>t.vol>=j&&t.pnl>0;function N(){A.setMe(E);let t=i("#pot"),n=i("#king"),s=i("#field");if(!Z){t.innerHTML='<span class="k">Pot this hour</span><span class="v idle">not live yet</span><span class="s">creator fees land here once $APEX trades</span>',n.innerHTML='<span class="k">King right now</span><span class="v idle">unclaimed</span><span class="s">the crown is waiting on the summit</span>',s.innerHTML='<span class="k">Field</span><span class="v idle">0 climbers</span><span class="s">every trader this hour gets a climber</span>',i("#lb").innerHTML=`<div class="empty">${Y}<span>The board fills the moment $APEX trades. Every wallet that trades this hour shows up here, ranked by profit.</span></div>`,A.setRows([]);return}if(!g){for(let[v,k]of[[t,"Pot this hour"],[n,"King right now"],[s,"Field"]])v.innerHTML=`<span class="k">${k}</span><span class="v"><i class="sk"></i></span><span class="s"><i class="sk w60"></i></span>`;i("#lb").innerHTML=Array.from({length:5},()=>'<div class="lrow sk-row"><i class="sk"></i></div>').join("");return}let o=g.rows,d=o.find(wt);A.setRows(o),t.innerHTML=`<span class="k">Pot this hour</span><span class="v">${H(g.pot)} <i>${b}</i></span><span class="s">${pt(g.pot)||"creator fees that arrived since "+F(g.from)}</span>`,n.innerHTML=d?`<span class="k">King right now</span><span class="v"><a href="https://solscan.io/account/${d.wallet}" target="_blank" rel="noopener">${S(d.wallet)}</a></span><span class="s up">${K(d.pnl)} ${b} ${pt(d.pnl)}</span>`:'<span class="k">King right now</span><span class="v idle">unclaimed</span><span class="s">nobody is in profit yet this hour</span>',s.innerHTML=`<span class="k">Field</span><span class="v">${g.traders} <i>climbers</i></span><span class="s">${H(g.volume)} ${b} volume \xB7 ${g.trades} trades</span>`,i("#lbHead").textContent=`${g.traders} traders \xB7 ${F(g.from)}\u2013${F(g.from+3600)}`,i("#lb").innerHTML=o.length?o.slice(0,50).map((v,k)=>{let x=wt(v),$=E&&v.wallet===E;return`<a class="lrow ${k===0&&x?"king":""} ${$?"mine":""}" href="https://solscan.io/tx/${v.sig}" target="_blank" rel="noopener">
+      <span class="rk">${k===0&&x?bt:"#"+(k+1)}</span><span class="w">${S(v.wallet)}${$?" <em>you</em>":""}</span>
+      <span class="p ${v.pnl>=0?"up":"dn"}">${K(v.pnl)} <i>${b}</i></span><span class="vol">${H(v.vol)} vol</span><span class="tr">${v.trades} trades</span>
+      <span class="q">${v.vol<j?"under min volume":v.pnl<=0?"not in profit":"qualifies"}</span></a>`}).join(""):`<div class="empty">${Y}<span>No trades yet this hour. The first buy puts a climber on the mountain.</span></div>`,St()}function St(){let t=i("#meOut");if(!E){t.innerHTML="";return}if(!g){t.innerHTML=Z?'<i class="sk w60"></i>':"";return}let n=g.rows.findIndex(d=>d.wallet===E);if(n<0){t.innerHTML=`<span>${S(E)} hasn't traded $APEX this hour.</span>`;return}let s=g.rows[n],o=g.rows[0].pnl-s.pnl;t.innerHTML=`<span><b>#${n+1}</b> of ${g.traders}</span><span class="${s.pnl>=0?"up":"dn"}">${K(s.pnl)} ${b}</span><span>${n===0?"you hold the crown":`${H(o)} ${b} behind the king`}</span>`}i("#meForm").addEventListener("submit",t=>{t.preventDefault();let n=i("#meIn").value.trim();if(!B.test(n)){z("Paste a Solana wallet address");return}E=n;try{localStorage.setItem("apex-me",n)}catch{}N()});i("#connectBtn").addEventListener("click",async()=>{let t=window.phantom?.solana||window.solflare||window.solana;if(!t){z("No Solana wallet found. Paste your address instead.");return}try{E=((await t.connect())?.publicKey||t.publicKey).toBase58(),i("#meIn").value=E;try{localStorage.setItem("apex-me",E)}catch{}i("#connectBtn").textContent=S(E),N()}catch{}});E&&(i("#meIn").value=E);async function et(){let t=i("#kings");if(!B.test(M.CREATOR||"")){t.innerHTML=`<div class="empty">${Y}<span>Every crowned wallet lands here with its payout receipt.</span></div>`;return}try{let n=await fetch(`/api/kings?creator=${M.CREATOR}`);if(!n.ok)throw 0;let{kings:s}=await n.json();i("#kingsHead").textContent=s.length?`${s.length} crowned \xB7 ${H(s.reduce((o,d)=>o+d.prize,0))} ${b} paid`:"",t.innerHTML=s.length?s.map(o=>`<a class="kcard" href="https://solscan.io/tx/${o.sig}" target="_blank" rel="noopener">${bt}<span class="kh">${F(o.hour*3600)}\u2013${F(o.hour*3600+3600)}</span><b>${S(o.wallet)}</b><span class="up">${K(o.pnl)} ${b} profit</span><span class="kp">won ${H(o.prize)} ${b}</span></a>`).join(""):`<div class="empty">${Y}<span>No hour has been crowned yet. The first king is paid at the next :00.</span></div>`}catch{t.innerHTML=Array.from({length:4},()=>'<div class="kcard sk-card"><i class="sk"></i><i class="sk w60"></i></div>').join("")}}var bt='<svg class="crown" viewBox="0 0 7 5" shape-rendering="crispEdges"><path fill="#e6f7a2" d="M0 1h1v1h1V0h1v2h1V0h1v2h1V1h1v4H0z"/><path fill="#f2fdff" d="M3 0h1v1H3z"/></svg>',Y='<svg viewBox="0 0 16 12" width="56" height="42" shape-rendering="crispEdges"><path fill="#3d8fb0" d="M8 3l7 8H1z"/><path fill="#e2fbff" d="M8 3l2 2H9l-1 1-1-1H6z"/><path fill="#e6f7a2" d="M6 0h1v1h1V0h1v1h1V0h1v3H6z"/></svg>';function kt(){let t=+i("#cBuy").value,n=+i("#cChg").value/100;i("#cBuyV").textContent=t,i("#cChgV").textContent=(n>=0?"+":"")+Math.round(n*100)+"%";let s=t*n;i("#cOut").textContent=(s>=0?"+":"")+H(s)+" "+b,i("#cOut").className="big "+(s>=0?"up":"dn"),i("#cNote").textContent=`Buy ${t} ${b} of $APEX this hour, price ends the hour ${(n>=0?"+":"")+Math.round(n*100)}%. Sold or still holding, you score the same: what you sold is counted at its sale price, what you hold at the hour's last price.`}["#cBuy","#cChg"].forEach(t=>i(t).addEventListener("input",kt));kt();N();tt();setInterval(tt,15e3);xt();setInterval(xt,6e4);et();setInterval(et,12e4);})();
+</script>
+</body>
+</html>
